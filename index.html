@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- the path the demo is served from; replaced by flutter build web --base-href /raisen-demo/ -->
+  <base href="/raisen-demo/">
+
+  <meta charset="UTF-8">
+  <meta content="IE=Edge" http-equiv="X-UA-Compatible">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="description" content="RAISEN: Lightning Hero (雷閃の勇者) — a free in-development web demo. Dodge by a hair. Strike like lightning.">
+  <meta name="theme-color" content="#000000">
+
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="apple-mobile-web-app-title" content="RAISEN">
+  <link rel="apple-touch-icon" href="icons/Icon-192.png">
+  <link rel="icon" type="image/png" href="favicon.png"/>
+
+  <title>RAISEN: Lightning Hero — web demo</title>
+  <link rel="manifest" href="manifest.json">
+  <style>
+    html, body { margin: 0; height: 100%; background: #000; overscroll-behavior: none; }
+    #loading { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center;
+      color: #ffd84a; font: 16px/1.4 monospace; letter-spacing: 2px; }
+  </style>
+</head>
+<body>
+  <div id="loading">LOADING…</div>
+  <script>
+    // one AudioContext for every sound: audioplayers makes one per player (a pool per sound effect), and
+    // past ~50 the browser leaves the next one suspended for good, so the music never started
+    (() => {
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if (!AC) return;
+      let shared = null;
+      function Shared() { return shared && shared.state !== 'closed' ? shared : (shared = new AC()); }
+      Shared.prototype = AC.prototype;
+      window.AudioContext = Shared;
+      AC.prototype.close = function () { return Promise.resolve(); };
+    })();
+  </script>
+  <script>
+    // the loading text goes once Flutter has drawn its first frame
+    window.addEventListener('flutter-first-frame', () => document.getElementById('loading')?.remove());
+  </script>
+  <script src="flutter_bootstrap.js" async></script>
+</body>
+</html>
